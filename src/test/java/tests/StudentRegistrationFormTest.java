@@ -39,6 +39,8 @@ public class StudentRegistrationFormTest
         $("#dateOfBirthInput").pressEnter();
 
         $("#hobbiesWrapper").findElement(byText("Reading")).click();
+        $("#hobbiesWrapper").findElement(byText("Music")).click();
+
         sleep(2000);
 //        $("#currentAddress").setValue("currentAddress here");
 //        $("#permanentAddress").setValue("permanentAddress here");
