@@ -41,6 +41,9 @@ public class StudentRegistrationFormTest
         $("#hobbiesWrapper").findElement(byText("Reading")).click();
         $("#hobbiesWrapper").findElement(byText("Music")).click();
 
+        sleep(1000);
+        $("#uploadPicture").uploadFromClasspath("1518521058110646316.jpg");
+
         sleep(2000);
 //        $("#currentAddress").setValue("currentAddress here");
 //        $("#permanentAddress").setValue("permanentAddress here");
