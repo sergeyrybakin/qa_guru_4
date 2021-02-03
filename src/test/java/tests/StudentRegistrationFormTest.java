@@ -15,8 +15,8 @@ public class StudentRegistrationFormTest
     @Test
     void dataAppearsInModalPopUpWindow() {
         String firstName = "Michail";
-        String lastName = "Lomonosov";
-        String email = "m.lomonosov@mail.ru";
+        String lastName = "theBear";
+        String email = "m.thebear@mail.ru";
         String gender = "Male";
         String phone = "1234567890";
         String dateOfBirth = "19 Dec 1961";
@@ -41,13 +41,14 @@ public class StudentRegistrationFormTest
         $("#hobbiesWrapper").findElement(byText("Reading")).click();
         $("#hobbiesWrapper").findElement(byText("Music")).click();
 
-        sleep(1000);
         $("#uploadPicture").uploadFromClasspath("1518521058110646316.jpg");
 
-        sleep(2000);
-//        $("#currentAddress").setValue("currentAddress here");
-//        $("#permanentAddress").setValue("permanentAddress here");
-//        $("#submit").click();
+        $("#submit").scrollTo();
+        $("#submit").click();
+
+        sleep(1000);
+
+        $(".modal-content").should(appear);
 //
 //        $("#output").shouldHave(text(name), text("aa@aa.aa"));
     }
