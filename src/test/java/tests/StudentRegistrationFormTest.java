@@ -75,9 +75,9 @@ public class StudentRegistrationFormTest
         modalBody.shouldHave(text(getHindiDate(formattedDateOfBirth)));
         modalBody.shouldHave(text(phone));
 
-        subject.forEach((k,v)-> {
-            modalBody.shouldHave(text(v));
-        } );
+        subject.forEach((k,v)->
+            modalBody.shouldHave(text(v))
+        );
 
         for (String s : stringArray)
         {
