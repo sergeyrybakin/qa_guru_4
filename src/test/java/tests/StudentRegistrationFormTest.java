@@ -26,6 +26,8 @@ public class StudentRegistrationFormTest
         String gender = "Male";
         String phone = "1234567890";
         String dateOfBirth = "9 Dec 1961";
+        //TODO the form is corrapted! If you want to see green test, initialize subject = "";
+        String subject = "It's only for testing purpose! It's not a serious autotest.";
         String photoFileName = "1518521058110646316.jpg";
         String[] stringArray = new String[] { "Reading", "Music" };
         String address = "Forrest str, 5, 534533";
@@ -43,6 +45,9 @@ public class StudentRegistrationFormTest
         //Date of Birth
         String formattedDateOfBirth = formatDateOfBirth(dateOfBirth);
         typeDateOfBirth(formattedDateOfBirth);
+        //Subject
+        if(!subject.isEmpty())
+            $("#subjectsInput").setValue(subject);
         //Hobby
         for (String s : stringArray)
         {
@@ -62,19 +67,23 @@ public class StudentRegistrationFormTest
 
         //Verifications
         $(".modal-content").should(appear);
-        $(".modal-body").shouldHave(text(firstName));
-        $(".modal-body").shouldHave(text(lastName));
-        $(".modal-body").shouldHave(text(email));
-        $(".modal-body").shouldHave(text(gender));
-        $(".modal-body").shouldHave(text(getHindiDate(formattedDateOfBirth)));
-        $(".modal-body").shouldHave(text(phone));
+        SelenideElement modalBody = $(".modal-body");
+        modalBody.shouldHave(text(firstName));
+        modalBody.shouldHave(text(lastName));
+        modalBody.shouldHave(text(email));
+        modalBody.shouldHave(text(gender));
+        modalBody.shouldHave(text(getHindiDate(formattedDateOfBirth)));
+        modalBody.shouldHave(text(phone));
+        if(!subject.isEmpty())
+            modalBody.shouldHave(text(subject).because("\n***ERROR: the Student Registration Form doesn't have filled Subject field!\n\t"
+                    + "If you want to see green test, String \"subject\" (see line 30) should be empty!\n"));
         for (String s : stringArray)
         {
-            $(".modal-body").shouldHave(text(s));
+            modalBody.shouldHave(text(s));
         }
-        $(".modal-body").shouldHave(text(photoFileName));
-        $(".modal-body").shouldHave(text(address));
-        $(".modal-body").shouldHave(text(state+" "+city));
+        modalBody.shouldHave(text(photoFileName));
+        modalBody.shouldHave(text(address));
+        modalBody.shouldHave(text(state+" "+city));
 
         $("#closeLargeModal").scrollTo().click();
     }
