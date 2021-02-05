@@ -25,7 +25,7 @@ public class StudentRegistrationFormTest
         String email = "m.thebear@mail.ru";
         String gender = "Male";
         String phone = "1234567890";
-        String dateOfBirth = "19 Dec 1961";
+        String dateOfBirth = "9 Dec 1961";
         String photoFileName = "1518521058110646316.jpg";
         String[] stringArray = new String[] { "Reading", "Music" };
         String address = "Forrest str, 5, 534533";
@@ -41,7 +41,8 @@ public class StudentRegistrationFormTest
         $(byValue(gender)).sendKeys("/t ");
         $("#userNumber").setValue(phone);
         //Date of Birth
-        typeDateOfBirth(dateOfBirth);
+        String formattedDateOfBirth = formatDateOfBirth(dateOfBirth);
+        typeDateOfBirth(formattedDateOfBirth);
         //Hobby
         for (String s : stringArray)
         {
@@ -65,7 +66,7 @@ public class StudentRegistrationFormTest
         $(".modal-body").shouldHave(text(lastName));
         $(".modal-body").shouldHave(text(email));
         $(".modal-body").shouldHave(text(gender));
-        $(".modal-body").shouldHave(text(getHindiDate(dateOfBirth)));
+        $(".modal-body").shouldHave(text(getHindiDate(formattedDateOfBirth)));
         $(".modal-body").shouldHave(text(phone));
         for (String s : stringArray)
         {
@@ -78,15 +79,27 @@ public class StudentRegistrationFormTest
         $("#closeLargeModal").scrollTo().click();
     }
 
+    private String formatDateOfBirth(String dateOfBirth)
+    {
+        String s;
+        if(dateOfBirth.indexOf(' ') == 1)
+            s = "0" + dateOfBirth;
+        else
+            s = dateOfBirth;
+        return  s;
+    }
+
     private void typeDateOfBirth(String dateOfBirth)
     {
-        $("#dateOfBirthInput").click();
-        $("#dateOfBirthInput").sendKeys(dateOfBirth);
-        for(int i=0; i<11; i++)
-            $("#dateOfBirthInput").sendKeys(Keys.LEFT);
-        for(int i=0; i<11; i++)
-            $("#dateOfBirthInput").sendKeys(Keys.BACK_SPACE);
-        $("#dateOfBirthInput").pressEnter();
+        SelenideElement dateOfBirthInput = $("#dateOfBirthInput");
+        dateOfBirthInput.click();
+        int amountOfChars = dateOfBirthInput.getValue().length();
+        dateOfBirthInput.sendKeys(dateOfBirth);
+        for(int i=0; i<dateOfBirth.length()-1; i++)
+            dateOfBirthInput.sendKeys(Keys.LEFT);
+        for(int i=0; i<amountOfChars; i++)
+            dateOfBirthInput.sendKeys(Keys.BACK_SPACE);
+        dateOfBirthInput.pressEnter();
     }
 
     private void selectInDropDownList(String type, String name)
