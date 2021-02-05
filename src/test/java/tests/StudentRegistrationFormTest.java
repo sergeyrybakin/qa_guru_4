@@ -2,7 +2,9 @@ package tests;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
@@ -26,8 +28,11 @@ public class StudentRegistrationFormTest
         String gender = "Male";
         String phone = "1234567890";
         String dateOfBirth = "9 Dec 1961";
-        //TODO the form is corrapted! If you want to see green test, initialize subject = "";
-        String subject = "It's only for testing purpose! It's not a serious autotest.";
+        Map<String, String> subject = new HashMap<>();
+        subject.put("a", "Maths");
+        subject.put("c", "Computer Science");
+        subject.put("e", "English");
+
         String photoFileName = "1518521058110646316.jpg";
         String[] stringArray = new String[] { "Reading", "Music" };
         String address = "Forrest str, 5, 534533";
@@ -46,19 +51,14 @@ public class StudentRegistrationFormTest
         String formattedDateOfBirth = formatDateOfBirth(dateOfBirth);
         typeDateOfBirth(formattedDateOfBirth);
         //Subject
-        if(!subject.isEmpty())
-            $("#subjectsInput").setValue(subject);
+        selectSubjects(subject);
         //Hobby
-        for (String s : stringArray)
-        {
-            $("#hobbiesWrapper").findElement(byText(s)).click();
-        }
+        selectHobby(stringArray);
 
         $("#uploadPicture").uploadFromClasspath(photoFileName);
 
         //Address
-        $("#currentAddress").scrollTo();
-        $("#currentAddress").setValue(address);
+        $("#currentAddress").scrollTo().setValue(address);
         selectInDropDownList("state", state);
         selectInDropDownList("city", city);
 
@@ -74,9 +74,11 @@ public class StudentRegistrationFormTest
         modalBody.shouldHave(text(gender));
         modalBody.shouldHave(text(getHindiDate(formattedDateOfBirth)));
         modalBody.shouldHave(text(phone));
-        if(!subject.isEmpty())
-            modalBody.shouldHave(text(subject).because("\n***ERROR: the Student Registration Form doesn't have filled Subject field!\n\t"
-                    + "If you want to see green test, String \"subject\" (see line 30) should be empty!\n"));
+
+        subject.forEach((k,v)-> {
+            modalBody.shouldHave(text(v));
+        } );
+
         for (String s : stringArray)
         {
             modalBody.shouldHave(text(s));
@@ -86,6 +88,23 @@ public class StudentRegistrationFormTest
         modalBody.shouldHave(text(state+" "+city));
 
         $("#closeLargeModal").scrollTo().click();
+    }
+
+    private void selectHobby(String[] stringArray)
+    {
+        for (String s : stringArray)
+        {
+            $("#hobbiesWrapper").findElement(byText(s)).click();
+        }
+    }
+
+    private void selectSubjects(Map<String, String> subject)
+    {
+        subject.forEach((k,v)->{
+            $("#subjectsInput").setValue(k);
+            $(".subjects-auto-complete__menu-list").should(appear);
+            $(".subjects-auto-complete__menu-list").findElement(byText(v)).click();
+                });
     }
 
     private String formatDateOfBirth(String dateOfBirth)
