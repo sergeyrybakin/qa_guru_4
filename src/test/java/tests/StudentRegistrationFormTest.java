@@ -7,18 +7,19 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.Keys;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 
-import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.appear;
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.byValue;
 import static com.codeborne.selenide.Selenide.*;
 
 public class StudentRegistrationFormTest
 {
+
     @Test
     void dataAppearsInModalPopUpWindow()
     {
@@ -49,7 +50,7 @@ public class StudentRegistrationFormTest
         $("#userNumber").setValue(phone);
         //Date of Birth
         String formattedDateOfBirth = formatDateOfBirth(dateOfBirth);
-        typeDateOfBirth(formattedDateOfBirth);
+        selectDateOfBirth(formattedDateOfBirth);
         //Subject
         selectSubjects(subject);
         //Hobby
@@ -67,27 +68,26 @@ public class StudentRegistrationFormTest
 
         //Verifications
         $(".modal-content").should(appear);
-        SelenideElement modalBody = $(".modal-body");
-        modalBody.shouldHave(text(firstName));
-        modalBody.shouldHave(text(lastName));
-        modalBody.shouldHave(text(email));
-        modalBody.shouldHave(text(gender));
-        modalBody.shouldHave(text(getHindiDate(formattedDateOfBirth)));
-        modalBody.shouldHave(text(phone));
-
-        subject.forEach((k,v)->
-            modalBody.shouldHave(text(v))
+        verifyPresence("Student Name", firstName + " " + lastName);
+        verifyPresence("Student Email", email);
+        verifyPresence("Gender", gender);
+        verifyPresence("Mobile", phone);
+        verifyPresence("Date of Birth", getHindiDate(formattedDateOfBirth));
+        subject.forEach((k, v) ->
+                verifyPresence("Subjects", v)
         );
-
         for (String s : stringArray)
-        {
-            modalBody.shouldHave(text(s));
-        }
-        modalBody.shouldHave(text(photoFileName));
-        modalBody.shouldHave(text(address));
-        modalBody.shouldHave(text(state+" "+city));
+            verifyPresence("Hobbies", s);
+        verifyPresence("Picture", photoFileName);
+        verifyPresence("Address", address);
+        verifyPresence("State and City", state + " " + city);
 
         $("#closeLargeModal").scrollTo().click();
+    }
+
+    private void verifyPresence(String where, String whatExpected)
+    {
+        $$(".modal-body tr").filterBy(text(where)).last().shouldHave(text(whatExpected));
     }
 
     private void selectHobby(String[] stringArray)
@@ -117,17 +117,18 @@ public class StudentRegistrationFormTest
         return  s;
     }
 
-    private void typeDateOfBirth(String dateOfBirth)
+    private void selectDateOfBirth(String dateOfBirth)
     {
-        SelenideElement dateOfBirthInput = $("#dateOfBirthInput");
-        dateOfBirthInput.click();
-        int amountOfChars = dateOfBirthInput.getValue().length();
-        dateOfBirthInput.sendKeys(dateOfBirth);
-        for(int i=0; i<dateOfBirth.length()-1; i++)
-            dateOfBirthInput.sendKeys(Keys.LEFT);
-        for(int i=0; i<amountOfChars; i++)
-            dateOfBirthInput.sendKeys(Keys.BACK_SPACE);
-        dateOfBirthInput.pressEnter();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
+        LocalDate dateTime = LocalDate.parse(dateOfBirth, formatter);
+        int month = dateTime.getMonth().getValue() - 1;
+        $("#dateOfBirthInput").click();
+        $(".react-datepicker__year-select").click();
+        $(".react-datepicker__year-select").$$("option").findBy(text(Integer.toString(dateTime.getYear()))).click();
+        $(".react-datepicker__month-select").$$("option").get(month).click();
+        $(".react-datepicker__header").click();
+        $(".react-datepicker__day--0" + dateOfBirth.substring(0, 2) + ":not(.react-datepicker__day--outside-month)")
+                .click();
     }
 
     private void selectInDropDownList(String type, String name)
