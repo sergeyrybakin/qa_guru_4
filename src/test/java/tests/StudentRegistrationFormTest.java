@@ -1,20 +1,11 @@
 package tests;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.SelenideElement;
 
-import static com.codeborne.selenide.Condition.appear;
-import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byText;
-import static com.codeborne.selenide.Selectors.byValue;
 import static com.codeborne.selenide.Selenide.*;
 
 public class StudentRegistrationFormTest {
@@ -26,14 +17,12 @@ public class StudentRegistrationFormTest {
         String email = "m.thebear@mail.ru";
         String gender = "Male";
         String phone = "1234567890";
-        String dateOfBirth = "9 Dec 1961";
-        Map<String, String> subject = new HashMap<>();
-        subject.put("a", "Maths");
-        subject.put("c", "Computer Science");
-        subject.put("e", "English");
-
+        String dayOfBirth = "1";
+        String monthOfBirth = "December";
+        String yearOfBirth = "1961";
+        String subject = "Computer Science";
         String photoFileName = "1518521058110646316.jpg";
-        String[] stringArray = new String[] { "Reading", "Music" };
+        String hobby = "Reading";
         String address = "Forrest str, 5, 534533";
         String state = "Haryana";
         String city = "Panipat";
@@ -44,18 +33,23 @@ public class StudentRegistrationFormTest {
         $("#firstName").setValue(firstName);
         $("#lastName").setValue(lastName);
         $("#userEmail").setValue(email);
-        $(byValue(gender)).sendKeys("/t ");
+        $$("#genterWrapper label").findBy(text(gender)).click();
         $("#userNumber").setValue(phone);
         //Date of Birth
-        String formattedDateOfBirth = formatDateOfBirth(dateOfBirth);
-        selectDateOfBirth(formattedDateOfBirth);
+        $("#dateOfBirthInput").click();
+        $(".react-datepicker__month-select").click();
+        $$(".react-datepicker__month-select option").findBy(matchText(monthOfBirth)).click();
+        $(".react-datepicker__year-select").click();
+        $$(".react-datepicker__year-select option").findBy(text(yearOfBirth)).click();
+        String prefilledDay = (dayOfBirth.length()>1 ? dayOfBirth : "0" + dayOfBirth);
+        $(".react-datepicker__day--0" + prefilledDay + ":not(.react-datepicker__day--outside-month)").click();
         //Subject
-        selectSubjects(subject);
+        $("#subjectsInput").val(subject.substring(0, 1));
+        $$(".subjects-auto-complete__menu-list div").findBy(text(subject)).click();
         //Hobby
-        selectHobby(stringArray);
-
+        $$("#hobbiesWrapper .custom-control label").findBy(text(hobby)).click();
+        //Picture
         $("#uploadPicture").uploadFromClasspath(photoFileName);
-
         //Address
         $("#currentAddress").scrollTo().setValue(address);
         selectInDropDownList("state", state);
@@ -70,12 +64,9 @@ public class StudentRegistrationFormTest {
         verifyPresence("Student Email", email);
         verifyPresence("Gender", gender);
         verifyPresence("Mobile", phone);
-        verifyPresence("Date of Birth", getHindiDate(formattedDateOfBirth));
-        subject.forEach((k, v) ->
-                verifyPresence("Subjects", v)
-        );
-        for (String s : stringArray)
-            verifyPresence("Hobbies", s);
+        verifyPresence("Date of Birth",  prefilledDay + " " + monthOfBirth + "," + yearOfBirth);
+        verifyPresence("Subject", subject);
+        verifyPresence("Hobbies", hobby);
         verifyPresence("Picture", photoFileName);
         verifyPresence("Address", address);
         verifyPresence("State and City", state + " " + city);
@@ -87,53 +78,8 @@ public class StudentRegistrationFormTest {
         $$(".modal-body tr").filterBy(text(where)).last().shouldHave(text(whatExpected));
     }
 
-    private void selectHobby(String[] stringArray) {
-        for (String s : stringArray) {
-            $("#hobbiesWrapper").findElement(byText(s)).click();
-        }
-    }
-
-    private void selectSubjects(Map<String, String> subject) {
-        subject.forEach((k,v)-> {
-            $("#subjectsInput").setValue(k);
-            $(".subjects-auto-complete__menu-list").should(appear);
-            $(".subjects-auto-complete__menu-list").findElement(byText(v)).click();
-        });
-    }
-
-    private String formatDateOfBirth(String dateOfBirth) {
-        String s;
-        if(dateOfBirth.indexOf(' ') == 1)
-            s = "0" + dateOfBirth;
-        else
-            s = dateOfBirth;
-        return  s;
-    }
-
-    private void selectDateOfBirth(String dateOfBirth) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
-        LocalDate dateTime = LocalDate.parse(dateOfBirth, formatter);
-        int month = dateTime.getMonth().getValue() - 1;
-        $("#dateOfBirthInput").click();
-        $(".react-datepicker__year-select").click();
-        $(".react-datepicker__year-select").$$("option").findBy(text(Integer.toString(dateTime.getYear()))).click();
-        $(".react-datepicker__month-select").$$("option").get(month).click();
-        $(".react-datepicker__header").click();
-        $(".react-datepicker__day--0" + dateOfBirth.substring(0, 2) + ":not(.react-datepicker__day--outside-month)")
-                .click();
-    }
-
     private void selectInDropDownList(String type, String name) {
-        SelenideElement selectState = $("#" + type + " div[class $= '-placeholder']");
-        selectState.scrollTo().click();
-        SelenideElement dropDownStateList = $("div[class $= '-menu']").should(appear);
-        dropDownStateList.findElement(byText(name)).click();
-    }
-
-    private String getHindiDate(String dateOfBirth) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
-        LocalDate dateTime = LocalDate.parse(dateOfBirth, formatter);
-        DateTimeFormatter formatterOutput = DateTimeFormatter.ofPattern("dd MMMM,yyyy", Locale.ENGLISH);
-        return dateTime.format(formatterOutput);
+        $("#" + type + " div[class $= '-placeholder']").scrollTo().click();
+        $("div[class $= '-menu']").should(appear).findElement(byText(name)).click();
     }
 }
