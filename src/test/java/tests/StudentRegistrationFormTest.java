@@ -17,12 +17,10 @@ import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.byValue;
 import static com.codeborne.selenide.Selenide.*;
 
-public class StudentRegistrationFormTest
-{
+public class StudentRegistrationFormTest {
 
     @Test
-    void dataAppearsInModalPopUpWindow()
-    {
+    void dataAppearsInModalPopUpWindow() {
         String firstName = "Michail";
         String lastName = "theBear";
         String email = "m.thebear@mail.ru";
@@ -85,30 +83,25 @@ public class StudentRegistrationFormTest
         $("#closeLargeModal").scrollTo().click();
     }
 
-    private void verifyPresence(String where, String whatExpected)
-    {
+    private void verifyPresence(String where, String whatExpected) {
         $$(".modal-body tr").filterBy(text(where)).last().shouldHave(text(whatExpected));
     }
 
-    private void selectHobby(String[] stringArray)
-    {
-        for (String s : stringArray)
-        {
+    private void selectHobby(String[] stringArray) {
+        for (String s : stringArray) {
             $("#hobbiesWrapper").findElement(byText(s)).click();
         }
     }
 
-    private void selectSubjects(Map<String, String> subject)
-    {
-        subject.forEach((k,v)->{
+    private void selectSubjects(Map<String, String> subject) {
+        subject.forEach((k,v)-> {
             $("#subjectsInput").setValue(k);
             $(".subjects-auto-complete__menu-list").should(appear);
             $(".subjects-auto-complete__menu-list").findElement(byText(v)).click();
-                });
+        });
     }
 
-    private String formatDateOfBirth(String dateOfBirth)
-    {
+    private String formatDateOfBirth(String dateOfBirth) {
         String s;
         if(dateOfBirth.indexOf(' ') == 1)
             s = "0" + dateOfBirth;
@@ -117,8 +110,7 @@ public class StudentRegistrationFormTest
         return  s;
     }
 
-    private void selectDateOfBirth(String dateOfBirth)
-    {
+    private void selectDateOfBirth(String dateOfBirth) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
         LocalDate dateTime = LocalDate.parse(dateOfBirth, formatter);
         int month = dateTime.getMonth().getValue() - 1;
@@ -131,16 +123,14 @@ public class StudentRegistrationFormTest
                 .click();
     }
 
-    private void selectInDropDownList(String type, String name)
-    {
+    private void selectInDropDownList(String type, String name) {
         SelenideElement selectState = $("#" + type + " div[class $= '-placeholder']");
         selectState.scrollTo().click();
         SelenideElement dropDownStateList = $("div[class $= '-menu']").should(appear);
         dropDownStateList.findElement(byText(name)).click();
     }
 
-    private String getHindiDate(String dateOfBirth)
-    {
+    private String getHindiDate(String dateOfBirth) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
         LocalDate dateTime = LocalDate.parse(dateOfBirth, formatter);
         DateTimeFormatter formatterOutput = DateTimeFormatter.ofPattern("dd MMMM,yyyy", Locale.ENGLISH);
